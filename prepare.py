@@ -51,7 +51,7 @@ def prep_telco(telco):
     # clean
     telco = telco.drop_duplicates()
     telco = telco.drop(columns=['customer_id','payment_type_id','internet_service_type_id','contract_type_id'])
-    telco.total_charges[telco.total_charges==' ']=0
+    telco.loc[telco.total_charges==' ']=0
     telco.total_charges = telco.total_charges.astype(float)
     telco_obj = telco.select_dtypes(include='object').columns.to_list()
     dummy_telco = pd.get_dummies(telco[telco_obj], drop_first=True)
