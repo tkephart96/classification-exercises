@@ -74,11 +74,12 @@ def split_data(df, strat, test=.2, validate=.25):
     :return: three dataframes: train, validate, and test.
     """
     print('data split')
-    train_validate, test = train_test_split(df, test_size=test, random_state=42, stratify=df[{strat}])
+    st = [strat]
+    train_validate, test = train_test_split(df, test_size=test, random_state=42, stratify=df[st])
     train, validate = train_test_split(train_validate, 
                                         test_size=validate, 
                                         random_state=42, 
-                                        stratify=train_validate[{strat}])
+                                        stratify=train_validate[st])
     print(f'train -> {train.shape}; {round(len(train)*100/len(df),2)}%')
     print(f'validate -> {validate.shape}; {round(len(validate)*100/len(df),2)}%')
     print(f'test -> {test.shape}; {round(len(test)*100/len(df),2)}%')
