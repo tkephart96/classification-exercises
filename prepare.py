@@ -1,9 +1,10 @@
 # imports
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.impute import SimpleImputer
 
 # functions
-def prep_iris(iris):
+def prep_iris(df):
     """
     This function prepares the iris dataset by cleaning it, creating dummy variables for the species
     column, and splitting it into train, validate, and test sets.
@@ -13,15 +14,12 @@ def prep_iris(iris):
     These dataframes are the result of cleaning and splitting the original `iris` dataframe.
     """
     # clean
-    iris = iris.drop_duplicates()
-    iris = iris.drop(columns=['species_id','measurement_id'])
-    iris = iris.rename(columns={'species_name':'species'})
-    dummy_iris = pd.get_dummies(iris.species, drop_first=True)
-    iris = pd.concat([iris, dummy_iris], axis=1)
+    df = df.drop(columns=['species_id','measurement_id'])
+    df = df.rename(columns={'species_name':'species'})
     print('data cleaned and prepped')
-    return iris
+    return df
 
-def prep_titanic(titanic):
+def prep_titanic(df):
     """
     The function prepares the Titanic dataset by cleaning and splitting it into train, validate, and
     test sets.
@@ -29,15 +27,25 @@ def prep_titanic(titanic):
     `test`. These dataframes are the result of cleaning and splitting the original `titanic` dataframe.
     """
     # clean
-    titanic = titanic.drop_duplicates()
-    titanic = titanic.drop(columns=['age','class','deck','embark_town'])
-    titanic['embarked'] = titanic.embarked.fillna(value='S')
-    dummy_titanic = pd.get_dummies(titanic[['sex','embarked']], drop_first=True)
-    titanic = pd.concat([titanic, dummy_titanic], axis=1)
+    df = df.drop(columns=['age','class','deck','embark_town','passenger_id'])
+    df['embarked'] = df.embarked.fillna(value='S')
+    dummy_df = pd.get_dummies(df[['sex','embarked']], dummy_na=False, drop_first=True)
+    df = pd.concat([df, dummy_df], axis=1)
     print('data cleaned and prepped')
-    return titanic
+    return df
 
-def prep_telco(telco):
+def prep_titanic_age(df):
+    # clean
+    df = df.drop(columns=['class','deck','embark_town','passenger_id'])
+    df['embarked'] = df.embarked.fillna(value='S')
+    dummy_df = pd.get_dummies(df[['sex','embarked']], dummy_na=False, drop_first=True)
+    df = pd.concat([df, dummy_df], axis=1)
+    print('data cleaned and prepped')
+    imputer = SimpleImputer(strategy = 'mean')
+    df['age'] = imputer.fit_transform(df[['age']])
+    return df
+
+def prep_telco(df):
     """
     The function takes a telco dataset, cleans it, creates dummy variables for categorical columns, and
     splits it into train, validate, and test sets.
@@ -49,15 +57,19 @@ def prep_telco(telco):
     These dataframes are the result of splitting and cleaning the original `telco` dataframe.
     """
     # clean
-    telco = telco.drop_duplicates()
-    telco = telco.drop(columns=['customer_id','payment_type_id','internet_service_type_id','contract_type_id'])
-    telco.loc[telco.total_charges==' ','total_charges']=0
-    telco.total_charges = telco.total_charges.astype(float)
-    telco_obj = telco.select_dtypes(include='object').columns.to_list()
-    dummy_telco = pd.get_dummies(telco[telco_obj], drop_first=True)
-    telco = pd.concat([telco, dummy_telco], axis=1)
+    df = df.drop(columns=['customer_id','payment_type_id','internet_service_type_id','contract_type_id'])
+    df.loc[df.total_charges==' ','total_charges']=0
+    df.total_charges = df.total_charges.astype(float)
+    df['Female'] = df.gender.map({'Female': 1, 'Male': 0})
+    df['partnered'] = df.partner.map({'Yes': 1, 'No': 0})
+    df['has_dependents'] = df.dependents.map({'Yes': 1, 'No': 0})
+    df['has_phone_service'] = df.phone_service.map({'Yes': 1, 'No': 0})
+    df['does_paperless_billing'] = df.paperless_billing.map({'Yes': 1, 'No': 0})
+    df['churned'] = df.churn.map({'Yes': 1, 'No': 0})
+    dummy_df = pd.get_dummies(df[['multiple_lines','online_security','online_backup','device_protection','tech_support','streaming_tv','streaming_movies','contract_type','internet_service_type','payment_type']], dummy_na=False, drop_first=True)
+    df = pd.concat([df, dummy_df], axis=1)
     print('data cleaned and prepped')
-    return telco
+    return df
 
 def split_data(df, strat, test=.2, validate=.25):
     """
