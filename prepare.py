@@ -21,10 +21,13 @@ def prep_iris(df):
 
 def prep_titanic(df):
     """
-    The function prepares the Titanic dataset by cleaning and splitting it into train, validate, and
-    test sets.
-    :return: The function `prep_titanic()` is returning three dataframes: `train`, `validate`, and
-    `test`. These dataframes are the result of cleaning and splitting the original `titanic` dataframe.
+    The function preps a Titanic dataset by dropping certain columns, filling missing values, creating
+    dummy variables, and returning the cleaned dataset.
+    
+    :param df: a pandas DataFrame containing the Titanic dataset with columns for age, class, deck,
+    embark_town, passenger_id, sex, embarked, and other variables. The function `prep_titanic` takes
+    this DataFrame as input and performs some data cleaning and preparation steps on it
+    :return: a cleaned and prepped dataframe.
     """
     # clean
     df = df.drop(columns=['age','class','deck','embark_town','passenger_id'])
@@ -35,6 +38,14 @@ def prep_titanic(df):
     return df
 
 def prep_titanic_age(df):
+    """
+    This function prepares the Titanic dataset by cleaning and prepping the data, including dropping
+    unnecessary columns, filling missing values, creating dummy variables, and imputing missing age
+    values with the mean.
+    
+    :param df: The input dataframe that contains information about passengers on the Titanic
+    :return: a cleaned and prepped dataframe with the 'age' column imputed using the mean strategy.
+    """
     # clean
     df = df.drop(columns=['class','deck','embark_town','passenger_id'])
     df['embarked'] = df.embarked.fillna(value='S')
@@ -47,14 +58,12 @@ def prep_titanic_age(df):
 
 def prep_telco(df):
     """
-    The function takes a telco dataset, cleans it, creates dummy variables for categorical columns, and
-    splits it into train, validate, and test sets.
+    The function takes a dataframe and performs data cleaning and preparation by dropping unnecessary
+    columns, converting data types, creating dummy variables, and mapping categorical variables to
+    binary values.
     
-    :param telco: `telco` is a pandas DataFrame containing data related to a telecommunications
-    company's customers, such as their demographic information, services subscribed to, and payment
-    information
-    :return: The function `prep_telco` is returning three dataframes: `train`, `validate`, and `test`.
-    These dataframes are the result of splitting and cleaning the original `telco` dataframe.
+    :param df: a pandas DataFrame containing Telco customer data
+    :return: a cleaned and preprocessed dataframe.
     """
     # clean
     df = df.drop(columns=['customer_id','payment_type_id','internet_service_type_id','contract_type_id'])
@@ -73,17 +82,18 @@ def prep_telco(df):
 
 def split_data(df, strat, test=.2, validate=.25):
     """
-    The function splits a given dataframe into training, validation, and test sets based on a specified
-    stratification variable.
+    This function splits a given dataframe into training, validation, and test sets based on a given
+    stratification column and specified proportions.
     
     :param df: The input dataframe that needs to be split into train, validate, and test sets
-    :param strat: The name of the column in the dataframe that will be used for stratified sampling
-    during the data split
+    :param strat: The strat parameter is the name of the column in the dataframe that will be used for
+    stratified sampling. Stratified sampling is a technique used to ensure that the distribution of a
+    certain variable in the dataset is maintained in the training, validation, and test sets
     :param test: The proportion of the data that should be allocated to the test set. In this case, it
     is set to 0.2 or 20% of the data
-    :param validate: The proportion of the data that will be used for validation. It is set to 0.25,
-    which means that 25% of the data will be used for validation
-    :return: three dataframes: train, validate, and test.
+    :param validate: The "validate" parameter is the proportion of the data that will be used for
+    validation. It is set to 0.25, which means that 25% of the data will be used for validation
+    :return: The function `split_data` returns three dataframes: `train`, `validate`, and `test`.
     """
     print('data split')
     st = [strat]
