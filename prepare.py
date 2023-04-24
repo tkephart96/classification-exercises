@@ -42,7 +42,7 @@ def prep_split_iris(df, test=.2, validate=.25):
     print(f'test -> {test.shape}; {round(len(test)*100/len(df),2)}%')
     return train, validate, test
 
-def prep_titanic(df):
+def prep_titanic_drp_age(df):
     """
     The function preps a Titanic dataset by dropping certain columns, filling missing values, creating
     dummy variables, and returning the cleaned dataset.
@@ -60,7 +60,31 @@ def prep_titanic(df):
     print('data cleaned and prepped')
     return df
 
-def prep_titanic_age(df):
+def prep_split_titanic_drp_age(df, test=.2, validate=.25):
+    """
+    This function prepares and splits Titanic dataset into train, validate, and test sets.
+    
+    :param df: The input dataframe containing the Titanic dataset
+    :return: three dataframes: train, validate, and test.
+    """
+    # clean
+    df = df.drop(columns=['age','class','deck','embark_town','passenger_id'])
+    df['embarked'] = df.embarked.fillna(value='S')
+    dummy_df = pd.get_dummies(df[['sex','embarked']], dummy_na=False, drop_first=True)
+    df = pd.concat([df, dummy_df], axis=1)
+    print('data cleaned and prepped')
+    print('data split')
+    train_validate, test = train_test_split(df, test_size=test, random_state=42, stratify=df['survived'])
+    train, validate = train_test_split(train_validate, 
+                                        test_size=validate, 
+                                        random_state=42, 
+                                        stratify=train_validate['survived'])
+    print(f'train -> {train.shape}; {round(len(train)*100/len(df),2)}%')
+    print(f'validate -> {validate.shape}; {round(len(validate)*100/len(df),2)}%')
+    print(f'test -> {test.shape}; {round(len(test)*100/len(df),2)}%')
+    return train, validate, test
+
+def prep_titanic_imp_age(df):
     """
     This function prepares the Titanic dataset by cleaning and prepping the data, including dropping
     unnecessary columns, filling missing values, creating dummy variables, and imputing missing age
@@ -79,16 +103,67 @@ def prep_titanic_age(df):
     df['age'] = imputer.fit_transform(df[['age']])
     return df
 
-def prep_split_titanic(df, test=.2, validate=.25):
+def prep_split_titanic_imp_age(df, test=.2, validate=.25):
     """
-    This function prepares and splits Titanic dataset into train, validate, and test sets.
+    This function prepares the Titanic dataset by cleaning and prepping the data, including dropping
+    unnecessary columns, filling missing values, creating dummy variables, and imputing missing age
+    values with the mean.
     
-    :param df: The input dataframe containing the Titanic dataset
-    :return: three dataframes: train, validate, and test.
+    :param df: The input dataframe that contains information about passengers on the Titanic
+    :return: a cleaned and prepped dataframe with the 'age' column imputed using the mean strategy.
     """
     # clean
-    df = df.drop(columns=['age','class','deck','embark_town','passenger_id'])
+    df = df.drop(columns=['class','deck','embark_town','passenger_id'])
     df['embarked'] = df.embarked.fillna(value='S')
+    dummy_df = pd.get_dummies(df[['sex','embarked']], dummy_na=False, drop_first=True)
+    df = pd.concat([df, dummy_df], axis=1)
+    print('data cleaned and prepped')
+    imputer = SimpleImputer(strategy = 'mean')
+    df['age'] = imputer.fit_transform(df[['age']])
+    print('data split')
+    train_validate, test = train_test_split(df, test_size=test, random_state=42, stratify=df['survived'])
+    train, validate = train_test_split(train_validate, 
+                                        test_size=validate, 
+                                        random_state=42, 
+                                        stratify=train_validate['survived'])
+    print(f'train -> {train.shape}; {round(len(train)*100/len(df),2)}%')
+    print(f'validate -> {validate.shape}; {round(len(validate)*100/len(df),2)}%')
+    print(f'test -> {test.shape}; {round(len(test)*100/len(df),2)}%')
+    return train, validate, test
+
+def prep_titanic_drp_null_age(df):
+    """
+    The function drops certain columns, fills missing values in 'embarked' column, drops rows with
+    missing values, creates dummy variables for 'sex' and 'embarked' columns, and returns the cleaned
+    and prepped dataframe.
+    
+    :param df: The parameter `df` is a Pandas DataFrame containing the Titanic dataset
+    :return: a cleaned and prepped dataframe with dropped columns, filled null values, and dummy
+    variables created for 'sex' and 'embarked' columns.
+    """
+    # clean
+    df = df.drop(columns=['class','deck','embark_town','passenger_id'])
+    df['embarked'] = df.embarked.fillna(value='S')
+    df = df.dropna()
+    dummy_df = pd.get_dummies(df[['sex','embarked']], dummy_na=False, drop_first=True)
+    df = pd.concat([df, dummy_df], axis=1)
+    print('data cleaned and prepped')
+    return df
+
+def prep_split_titanic_drp_null_age(df, test=.2, validate=.25):
+    """
+    The function drops certain columns, fills missing values in 'embarked' column, drops rows with
+    missing values, creates dummy variables for 'sex' and 'embarked' columns, and returns the cleaned
+    and prepped dataframe.
+    
+    :param df: The parameter `df` is a Pandas DataFrame containing the Titanic dataset
+    :return: a cleaned and prepped dataframe with dropped columns, filled null values, and dummy
+    variables created for 'sex' and 'embarked' columns.
+    """
+    # clean
+    df = df.drop(columns=['class','deck','embark_town','passenger_id'])
+    df['embarked'] = df.embarked.fillna(value='S')
+    df = df.dropna()
     dummy_df = pd.get_dummies(df[['sex','embarked']], dummy_na=False, drop_first=True)
     df = pd.concat([df, dummy_df], axis=1)
     print('data cleaned and prepped')
