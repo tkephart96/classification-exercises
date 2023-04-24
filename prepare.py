@@ -19,6 +19,29 @@ def prep_iris(df):
     print('data cleaned and prepped')
     return df
 
+def prep_split_iris(df):
+    """
+    This function prepares and splits a given dataset into training, validation, and testing sets for
+    machine learning purposes.
+    
+    :param df: The input dataframe containing the Iris dataset
+    :return: three dataframes: train, validate, and test.
+    """
+    # clean
+    df = df.drop(columns=['species_id','measurement_id'])
+    df = df.rename(columns={'species_name':'species'})
+    print('data cleaned and prepped')
+    print('data split')
+    train_validate, test = train_test_split(df, test_size=test, random_state=42, stratify=df['species'])
+    train, validate = train_test_split(train_validate, 
+                                        test_size=validate, 
+                                        random_state=42, 
+                                        stratify=train_validate['species'])
+    print(f'train -> {train.shape}; {round(len(train)*100/len(df),2)}%')
+    print(f'validate -> {validate.shape}; {round(len(validate)*100/len(df),2)}%')
+    print(f'test -> {test.shape}; {round(len(test)*100/len(df),2)}%')
+    return train, validate, test
+
 def prep_titanic(df):
     """
     The function preps a Titanic dataset by dropping certain columns, filling missing values, creating
@@ -56,6 +79,30 @@ def prep_titanic_age(df):
     df['age'] = imputer.fit_transform(df[['age']])
     return df
 
+def prep_split_titanic(df):
+    """
+    This function prepares and splits Titanic dataset into train, validate, and test sets.
+    
+    :param df: The input dataframe containing the Titanic dataset
+    :return: three dataframes: train, validate, and test.
+    """
+    # clean
+    df = df.drop(columns=['age','class','deck','embark_town','passenger_id'])
+    df['embarked'] = df.embarked.fillna(value='S')
+    dummy_df = pd.get_dummies(df[['sex','embarked']], dummy_na=False, drop_first=True)
+    df = pd.concat([df, dummy_df], axis=1)
+    print('data cleaned and prepped')
+    print('data split')
+    train_validate, test = train_test_split(df, test_size=test, random_state=42, stratify=df['survived'])
+    train, validate = train_test_split(train_validate, 
+                                        test_size=validate, 
+                                        random_state=42, 
+                                        stratify=train_validate['survived'])
+    print(f'train -> {train.shape}; {round(len(train)*100/len(df),2)}%')
+    print(f'validate -> {validate.shape}; {round(len(validate)*100/len(df),2)}%')
+    print(f'test -> {test.shape}; {round(len(test)*100/len(df),2)}%')
+    return train, validate, test
+
 def prep_telco(df):
     """
     The function takes a dataframe and performs data cleaning and preparation by dropping unnecessary
@@ -79,6 +126,38 @@ def prep_telco(df):
     df = pd.concat([df, dummy_df], axis=1)
     print('data cleaned and prepped')
     return df
+
+def prep_split_telco(df):
+    """
+    This function prepares and splits a Telco customer dataset into training, validation, and testing
+    sets.
+    
+    :param df: The input dataframe that contains the Telco customer data
+    :return: three dataframes: train, validate, and test.
+    """
+    # clean
+    df = df.drop(columns=['customer_id','payment_type_id','internet_service_type_id','contract_type_id'])
+    df.loc[df.total_charges==' ','total_charges']=0
+    df.total_charges = df.total_charges.astype(float)
+    df['Female'] = df.gender.map({'Female': 1, 'Male': 0})
+    df['partnered'] = df.partner.map({'Yes': 1, 'No': 0})
+    df['has_dependents'] = df.dependents.map({'Yes': 1, 'No': 0})
+    df['has_phone_service'] = df.phone_service.map({'Yes': 1, 'No': 0})
+    df['does_paperless_billing'] = df.paperless_billing.map({'Yes': 1, 'No': 0})
+    df['churned'] = df.churn.map({'Yes': 1, 'No': 0})
+    dummy_df = pd.get_dummies(df[['multiple_lines','online_security','online_backup','device_protection','tech_support','streaming_tv','streaming_movies','contract_type','internet_service_type','payment_type']], dummy_na=False, drop_first=True)
+    df = pd.concat([df, dummy_df], axis=1)
+    print('data cleaned and prepped')
+    print('data split')
+    train_validate, test = train_test_split(df, test_size=test, random_state=42, stratify=df['churn'])
+    train, validate = train_test_split(train_validate, 
+                                        test_size=validate, 
+                                        random_state=42, 
+                                        stratify=train_validate['churn'])
+    print(f'train -> {train.shape}; {round(len(train)*100/len(df),2)}%')
+    print(f'validate -> {validate.shape}; {round(len(validate)*100/len(df),2)}%')
+    print(f'test -> {test.shape}; {round(len(test)*100/len(df),2)}%')
+    return train, validate, test
 
 def split_data(df, strat, test=.2, validate=.25):
     """
