@@ -19,7 +19,7 @@ def prep_iris(df):
     print('data cleaned and prepped')
     return df
 
-def prep_split_iris(df):
+def prep_split_iris(df, test=.2, validate=.25):
     """
     This function prepares and splits a given dataset into training, validation, and testing sets for
     machine learning purposes.
@@ -79,7 +79,7 @@ def prep_titanic_age(df):
     df['age'] = imputer.fit_transform(df[['age']])
     return df
 
-def prep_split_titanic(df):
+def prep_split_titanic(df, test=.2, validate=.25):
     """
     This function prepares and splits Titanic dataset into train, validate, and test sets.
     
@@ -127,7 +127,7 @@ def prep_telco(df):
     print('data cleaned and prepped')
     return df
 
-def prep_split_telco(df):
+def prep_split_telco(df, test=.2, validate=.25):
     """
     This function prepares and splits a Telco customer dataset into training, validation, and testing
     sets.
