@@ -84,24 +84,24 @@ def prep_split_titanic_drp_age(df, test=.2, validate=.25):
     print(f'test -> {test.shape}; {round(len(test)*100/len(df),2)}%')
     return train, validate, test
 
-def prep_titanic_imp_age(df):
-    """
-    This function prepares the Titanic dataset by cleaning and prepping the data, including dropping
-    unnecessary columns, filling missing values, creating dummy variables, and imputing missing age
-    values with the mean.
+# def prep_titanic_imp_age(df): # can't impute before split as mean age is influenced by val and test data
+#     """
+#     This function prepares the Titanic dataset by cleaning and prepping the data, including dropping
+#     unnecessary columns, filling missing values, creating dummy variables, and imputing missing age
+#     values with the mean.
     
-    :param df: The input dataframe that contains information about passengers on the Titanic
-    :return: a cleaned and prepped dataframe with the 'age' column imputed using the mean strategy.
-    """
-    # clean
-    df = df.drop(columns=['class','deck','embark_town','passenger_id'])
-    df['embarked'] = df.embarked.fillna(value='S')
-    dummy_df = pd.get_dummies(df[['sex','embarked']], dummy_na=False, drop_first=True)
-    df = pd.concat([df, dummy_df], axis=1)
-    print('data cleaned and prepped')
-    imputer = SimpleImputer(strategy = 'mean')
-    df['age'] = imputer.fit_transform(df[['age']])
-    return df
+#     :param df: The input dataframe that contains information about passengers on the Titanic
+#     :return: a cleaned and prepped dataframe with the 'age' column imputed using the mean strategy.
+#     """
+#     # clean
+#     df = df.drop(columns=['class','deck','embark_town','passenger_id'])
+#     df['embarked'] = df.embarked.fillna(value='S')
+#     dummy_df = pd.get_dummies(df[['sex','embarked']], dummy_na=False, drop_first=True)
+#     df = pd.concat([df, dummy_df], axis=1)
+#     print('data cleaned and prepped')
+#     imputer = SimpleImputer(strategy = 'mean')
+#     df['age'] = imputer.fit_transform(df[['age']])
+#     return df
 
 def prep_split_titanic_imp_age(df, test=.2, validate=.25):
     """
@@ -118,14 +118,16 @@ def prep_split_titanic_imp_age(df, test=.2, validate=.25):
     dummy_df = pd.get_dummies(df[['sex','embarked']], dummy_na=False, drop_first=True)
     df = pd.concat([df, dummy_df], axis=1)
     print('data cleaned and prepped')
-    imputer = SimpleImputer(strategy = 'mean')
-    df['age'] = imputer.fit_transform(df[['age']])
     print('data split')
     train_validate, test = train_test_split(df, test_size=test, random_state=42, stratify=df['survived'])
     train, validate = train_test_split(train_validate, 
                                         test_size=validate, 
                                         random_state=42, 
                                         stratify=train_validate['survived'])
+    imputer = SimpleImputer(strategy = 'mean')
+    train['age'] = imputer.fit_transform(train[['age']])
+    validate['age'] = imputer.fit_transform(validate[['age']])
+    test['age'] = imputer.fit_transform(test[['age']])
     print(f'train -> {train.shape}; {round(len(train)*100/len(df),2)}%')
     print(f'validate -> {validate.shape}; {round(len(validate)*100/len(df),2)}%')
     print(f'test -> {test.shape}; {round(len(test)*100/len(df),2)}%')
